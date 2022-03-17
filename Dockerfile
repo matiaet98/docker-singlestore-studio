@@ -1,15 +1,13 @@
-FROM centos:latest
+FROM ubuntu:22.04
 
-# Needing this line is super stupid, centos should fix this asap
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* && \
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+RUN apt update
 
-RUN yum upgrade -y && \
-    yum install -y yum-utils
+RUN apt install --no-install-recommends -y wget gnupg ca-certificates && \
+    wget -O - --no-check-certificate 'https://release.memsql.com/release-aug2018.gpg'  2>/dev/null | apt-key add - && apt-key list && \
+    echo "deb [arch=amd64] https://release.memsql.com/production/debian memsql main" | tee /etc/apt/sources.list.d/memsql.list
 
-RUN yum-config-manager \
-    --add-repo https://release.memsql.com/production/rpm/x86_64/repodata/memsql.repo && \
-    yum install -y --nobest memsql-studio
+RUN apt update && \
+    apt -y install singlestoredb-studio
 
 EXPOSE 8080
 
