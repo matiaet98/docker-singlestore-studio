@@ -15,4 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag singlestore-studio:$(date +%s) && docker tag singlestore-studio:$(date +%s) singlestore-studio:latest
+      run: |
+        tag=$(date +%s)
+        docker build . --file Dockerfile --tag singlestore-studio:${tag} 
+        docker tag singlestore-studio:${tag} singlestore-studio:latest
