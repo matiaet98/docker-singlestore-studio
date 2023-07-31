@@ -1,14 +1,16 @@
-FROM ubuntu:22.10
+FROM almalinux:8
 
-RUN apt update
+RUN yum install yum-utils wget procps jq-1.6 -y && yum update expat libxml2 gnupg2 libgcrypt openssl-libs pcre2 curl libcurl-minimal systemd platform-python python3-libs gnutls libksba sqlite-libs zlib libcom_err krb5-libs dbus libtasn1 libarchive unbound-libs tar platform-python-setuptools python3-setuptools-wheel sqlite-libs systemd systemd-libs systemd-pam -y
+RUN yum-config-manager --add-repo https://release.memsql.com/production/rpm/x86_64/repodata/memsql.repo && dnf --enablerepo=* clean all && dnf update -y
 
-RUN apt install --no-install-recommends -y wget gnupg ca-certificates apt-utils && \
-    wget -O - --no-check-certificate 'https://release.memsql.com/release-aug2018.gpg'  2>/dev/null | apt-key add - && apt-key list && \
-    echo "deb [arch=amd64] https://release.memsql.com/production/debian memsql main" | tee /etc/apt/sources.list.d/memsql.list
+RUN yum install -y \
+    singlestoredb-studio \
+    && yum clean all
 
-RUN apt update && \
-    apt -y install singlestoredb-studio
+VOLUME ["/var/lib/memsql"]
 
-EXPOSE 8080
+EXPOSE 8080/tcp
+USER memsql
+WORKDIR "/home/memsql"
 
 CMD ["memsql-studio"]
